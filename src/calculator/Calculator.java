@@ -1,7 +1,7 @@
 package calculator;
 
-import java.sql.SQLOutput;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -12,11 +12,35 @@ import java.util.List;
 class Calculator {
 
     String calculate(String[] expression) {
+        var tmp = new ArrayList<>(List.of(expression));
+
+        int broOpenIndx = -1;
+        do {
+            broOpenIndx = -1;
+            for (int i = 0; i < tmp.size(); i++) {
+                String a = tmp.get(i);
+                if (a.equals("(")) {
+                    broOpenIndx = i;
+                } else if (a.equals(")")) {
+                    var inBr = tmp.subList(broOpenIndx + 1, i);
+                    var result = calculate(inBr);
+                    tmp.subList(broOpenIndx, i + 1).clear();
+                    tmp.add(broOpenIndx, result);
+                    break;
+                }
+            }
+        } while (broOpenIndx != -1);
+        return calculate(tmp);
+
+    }
+
+
+    String calculate(List<String> expression) {
         List<String> tmp = new ArrayList<>();
-        double a = Double.parseDouble(expression[0]);
-        for (int i = 1; i < tmp.size(); i+=2) {
-            String op = tmp.get(i);
-            double b = Double.parseDouble(expression [i+1]);
+        double a = Double.parseDouble(expression.get(0));
+        for (int i = 1; i < expression.size(); i += 2) {
+            String op = expression.get(i);
+            double b = Double.parseDouble(expression.get(i + 1));
             switch (op) {
                 case "+":
                 case "-":
@@ -25,25 +49,22 @@ class Calculator {
                     a = b;
                     break;
                 case "*":
-                    a *=b;
+                    a *= b;
                     break;
                 case "/":
-                    a /=b;
+                    a /= b;
                     break;
-                default:
-                    return "Error";
             }
-
         }
+
         tmp.add(String.valueOf(a));
+
         System.out.println(tmp);
 
-        return "NOT IMPLEMENTED";
-
-        double result = Double.parseDouble(expression[0]);
-        for (int i = 1; i < expression.length; i += 2) {
-            String op = expression[i];
-            double b = Double.parseDouble(expression[i + 1]);
+        double result = Double.parseDouble(tmp.get(0));
+        for (int i = 1; i < tmp.size(); i += 2) {
+            String op = tmp.get(i);
+            double b = Double.parseDouble(tmp.get(i + 1));
             switch (op) {
                 case "+":
                     result += b;
@@ -55,6 +76,8 @@ class Calculator {
                     return "ERROR";
             }
         }
-                    return String.valueOf(result);
+
+        return String.valueOf(result);
     }
+
 }
